@@ -4,6 +4,8 @@ import json
 
 bot = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
+active = True
+
 
 @bot.event
 async def on_ready():
@@ -58,20 +60,16 @@ async def on_raw_reaction_add(payload):
 
         with open('adminreact.json') as react_file:
             data = json.load(react_file)
+            global active
             for x in data:
                 if x['message_id'] == message_id:
                     role = discord.utils.get(bot.get_guild(server_id).roles, id=x['role_id'])
                     member = bot.get_guild(server_id).get_member(x['user_name'])
 
                     if payload.emoji.name == '\N{WHITE HEAVY CHECK MARK}':
-                        await member.add_roles(role)
-                        print("Member got role!")
+                        await add_r(member, role)
                     else:  # if admin press on 'x' = "Not to give role"
-                        if role in member.roles:
-                            await member.remove_roles(role)
-                            print("we took role from you")
-                        else:
-                            print("Sorry, admin decided to not give role to you")
+                        print("Sorry, admin decided to not give role to you")
                 else:
                     print('Message not found in json file')
     else:
@@ -120,19 +118,19 @@ async def on_raw_reaction_remove(payload):
 
         with open('adminreact.json') as react_file:
             data = json.load(react_file)
+            global active
             for x in data:
                 if x['message_id'] == message_id:
                     role = discord.utils.get(bot.get_guild(server_id).roles, id=x['role_id'])
                     member = bot.get_guild(server_id).get_member(x['user_name'])
 
                     if payload.emoji.name == "\N{NEGATIVE SQUARED CROSS MARK}":
-                        print("NOT X")
-                    else:  # if admin press on 'x' = "Not to give role"
+                            print("админ передумал ХХХ ON ROW REMOWEEEE")
+                    else:  # if admin press on 'y' = "Not to give role"
                         if role in member.roles:
-                            await member.remove_roles(role)
-                            print("we took role from you")
+                            await remove_r(member, role)
                 else:
-                    print('Message not found in json file')
+                    print('Message not found in json file NO RAW REMOVWEE')
 
 @bot.event
 async def dm_mod(mod, members_guild, member, role, emoji, server):
@@ -142,8 +140,7 @@ async def dm_mod(mod, members_guild, member, role, emoji, server):
             msg = await user.send(
                 f"{member.mention} хочет роль **@{role.name}**.\nПрисвоить роль - нажмите :white_check_mark:,"
                 f"\nОтказать в запросе - нажмите :negative_squared_cross_mark:.")
-            message_channel = msg.channel.id
-
+            message_channel = msg.channel
             await msg.add_reaction(u"\u2705")
             await msg.add_reaction(u"\u274E")
             print("Message was sent to admins")
@@ -164,5 +161,16 @@ async def dm_mod(mod, members_guild, member, role, emoji, server):
 
             with open('adminreact.json', 'w') as j:
                 json.dump(data, j, indent=4)
+
+@bot.event
+async def add_r(member, role):
+    await member.add_roles(role)
+    print("Member got role!")
+
+@bot.event
+async def remove_r(member, role):
+    await member.remove_roles(role)
+    print("Took role from you!")
+
 
 bot.run('ODIyMTIzMzkyMzYyMzQ4NTc1.YFNsEw.aTBY8CE13WEvhw7TBsk_o2OrEvQ')
