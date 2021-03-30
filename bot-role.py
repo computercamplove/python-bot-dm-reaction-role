@@ -4,9 +4,6 @@ import json
 
 bot = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
-active = True
-
-
 @bot.event
 async def on_ready():
     print("Bot is online!")
@@ -22,34 +19,36 @@ async def on_raw_reaction_add(payload):
     emoji_role_name = 'medved'
 
     if message_id == 825961963489198110:
-        # condition where controls user's reaction
-        # after reacting to specific message User gets DM message "to wait"
-        # and Admin gets DM message "decide Y/N"
+        """
+         condition where controls user's reaction
+         after reacting to specific message User gets DM message "to wait"
+         and Admin gets DM message "decide Y/N"
+        """
 
         guild_id = payload.guild_id
         guild = discord.utils.find(lambda g: g.id == guild_id, bot.guilds)
 
-        if payload.emoji.name == emoji_role_name:
-            role = discord.utils.get(guild.roles, name=role_name)
-        else:
-            print("Role not Found")
-            role = None
+        if payload.emoji.name != emoji_role_name:
+            print("Emoji not Found")
+            return
+        role = discord.utils.get(guild.roles, name=role_name)
 
-        if role is not None:
-            if role.name == role_name:
-                member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
-                if member is not None:
-                    await payload.member.send('Привет! Ждите решение админа **(Не)Женский Подкаст**')
-                    print("Done. User left reaction and got DM message")
-
-                    await dm_mod(admin_id, guild.members, member, role, payload.emoji.name, guild_id)
-                    print('Admin got message')
-                else:
-                    print("Member not Found")
-            else:
-                print("Another role")
-        else:
+        if role is None or role.name != role_name:
             print("Role not Found")
+            return
+
+        member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+
+        if member is None:
+            print("Member not Found")
+            return
+
+        await payload.member.send('Привет! Ждите решение админа **(Не)Женский Подкаст**')
+        print("Done. User left reaction and got DM message")
+
+        await dm_mod(admin_id, guild.members, member, role, guild_id)
+        print('Admin got message')
+
 
     elif payload.user_id == admin_id:
         # condition where controls Admin reaction
@@ -57,10 +56,8 @@ async def on_raw_reaction_add(payload):
         message_id = payload.message_id
         guild_id = server_id
 
-
         with open('adminreact.json') as react_file:
             data = json.load(react_file)
-            global active
             for x in data:
                 if x['message_id'] == message_id:
                     role = discord.utils.get(bot.get_guild(server_id).roles, id=x['role_id'])
@@ -118,7 +115,6 @@ async def on_raw_reaction_remove(payload):
 
         with open('adminreact.json') as react_file:
             data = json.load(react_file)
-            global active
             for x in data:
                 if x['message_id'] == message_id:
                     role = discord.utils.get(bot.get_guild(server_id).roles, id=x['role_id'])
@@ -133,14 +129,15 @@ async def on_raw_reaction_remove(payload):
                     print('Message not found in json file NO RAW REMOVWEE')
 
 @bot.event
-async def dm_mod(mod, members_guild, member, role, emoji, server):
+async def dm_mod(mod, members_guild, member, role, server):
     for user in members_guild:
         if mod == user.id:
             print(user)
             msg = await user.send(
                 f"{member.mention} хочет роль **@{role.name}**.\nПрисвоить роль - нажмите :white_check_mark:,"
                 f"\nОтказать в запросе - нажмите :negative_squared_cross_mark:.")
-            message_channel = msg.channel
+            message_channel = str(msg.channel)
+            print(message_channel)
             await msg.add_reaction(u"\u2705")
             await msg.add_reaction(u"\u274E")
             print("Message was sent to admins")
