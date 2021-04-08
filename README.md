@@ -2,3 +2,6 @@
 
 manage reaction in dm
 manage roles
+
+API Reference [discord.py](https://discordpy.readthedocs.io/en/stable/)
+
