@@ -1,7 +1,10 @@
-# python-bot-Anastasia-for-podcast
+# python-bot-dm-reaction-role
 
-manage reaction in dm
-manage roles
+Manage reaction in DM.
+
+Manage roles.
+
+
 
 API Reference [discord.py](https://discordpy.readthedocs.io/en/stable/)
 
