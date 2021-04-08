@@ -13,16 +13,17 @@ async def on_ready():
 @bot.event
 async def on_raw_reaction_add(payload):
     message_id = payload.message_id  # message where users can left reaction
-    admin_id = 331533272787976192
-    server_id = 588710659882090499
-    role_name = "Больной ублюдок"
-    emoji_role_name = 'medved'
+    admin_id = 0  # here is your Admin's ID
+    server_id = 0 # here is your Discord Server's ID
+    role_name = "ROLE NAME"  # Role's name which member wants to get
+    emoji_role_name = 'ROLE NAME'
+    message_react_id = 0  # here is your message id where member can leave reaction
 
-    if message_id == 825961963489198110:
+    if message_id == message_react_id:
         """
-         condition where controls user's reaction
-         after reacting to specific message User gets DM message "to wait"
-         and Admin gets DM message "decide Y/N"
+         controls member's reaction
+         after reacting to specific message Member gets DM message "to wait"
+         and Admin gets DM message "decide to give role or not Y/N"
         """
 
         guild_id = payload.guild_id
@@ -43,15 +44,15 @@ async def on_raw_reaction_add(payload):
             print("Member not Found")
             return
 
-        await payload.member.send('Здравствуй! Жди решение админа **(Не)Женский Подкаст**')
-        print("Done. User left reaction and got DM message")
+        await payload.member.send('Hello, please wait')
+        print("Done. Member left reaction and got DM message")
         await dm_mod(admin_id, guild.members, member, role, guild_id)
         print('Admin got message')
 
 
     elif payload.user_id == admin_id:
         """ 
-            condition where controls Admin reaction
+            controls Admin reaction
             Admin reacts to DM message - to give role or not
         """
 
@@ -64,7 +65,6 @@ async def on_raw_reaction_add(payload):
                 if x['message_id'] == message_id:
                     print(message_id)
                     print(x['message_id'])
-
 
                     role = discord.utils.get(bot.get_guild(server_id).roles, id=x['role_id'])
                     member = bot.get_guild(server_id).get_member(x['user_name'])
@@ -83,14 +83,14 @@ async def on_raw_reaction_add(payload):
 @bot.event
 async def on_raw_reaction_remove(payload):
     message_id = payload.message_id
-    role_name = "Больной ублюдок"
-    emoji_role_name = 'medved'
+    admin_id = 0  # here is your Admin's ID
+    server_id = 0 # here is your Discord Server's ID
+    role_name = "ROLE NAME"  # Role's name which member wants to get
+    emoji_role_name = 'ROLE NAME'
+    message_react_id = 0  # here is your message id where member can leave reaction
 
-    admin_id = 331533272787976192
-    server_id = 588710659882090499
-
-    if message_id == 825961963489198110:
-        # if user decide to not have role
+    if message_id == message_react_id:
+        # if member decide to not have role
 
         guild_id = payload.guild_id
         guild = discord.utils.find(lambda g: g.id == guild_id, bot.guilds)
@@ -115,7 +115,7 @@ async def on_raw_reaction_remove(payload):
 
 
     elif payload.user_id == admin_id:
-        # condition where controls Admin reaction
+        # controls Admin reaction
         # Admin reacts to DM message - to give role or not
         message_id = payload.message_id
         guild_id = server_id
@@ -147,8 +147,8 @@ async def dm_mod(mod, members_guild, member, role, server):
         if mod == user.id:
             print(user)
             msg = await user.send(
-                f"{member.mention} хочет роль **@{role.name}**.\nПрисвоить роль - нажмите :white_check_mark:,"
-                f"\nОтказать в запросе - нажмите :negative_squared_cross_mark:.")
+                f"{member.mention} wants role **@{role.name}**.\nTo give role - press :white_check_mark:,"
+                f"\nTo not give role - press :negative_squared_cross_mark:.")
             message_channel = str(msg.channel)
 
             await msg.add_reaction(u"\u2705")
@@ -185,4 +185,4 @@ async def remove_r(member, role):
     print("Took role from you!")
 
 
-bot.run('ODIyMTIzMzkyMzYyMzQ4NTc1.YFNsEw.aTBY8CE13WEvhw7TBsk_o2OrEvQ')
+bot.run('YOUR BOT TOKEN')
